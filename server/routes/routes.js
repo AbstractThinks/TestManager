@@ -1,14 +1,28 @@
 var express = require('express');
 var router = express.Router();
 var user = require('./services/user/user.js');
+var article = require('./services/article/article.js');
 
 router.post('/user/get', function (req, res) {
 	user.getUser(req, res);
 });
-router.post('/user/create', user.addUser);
-router.post('/user/login', user.login);
-router.post('/user/login/token', user.loginByToken);
-router.post('/user/password/update', user.updatePassword);
-router.post('/user/delete', user.deleteUser);
+router.post('/user/create', function (req, res) {
+	user.addUser(req, res);
+});
+router.post('/user/login', function (req, res) {
+	user.login(req, res);
+});
+router.post('/user/login/token', function (req, res) {
+	user.loginByToken(req, res);
+});
+router.post('/user/password/update', function (req, res) {
+	user.updatePassword(req, res);
+});
+router.post('/user/delete', function (req, res) {
+	user.deleteUser(req, res);
+});
+router.post('/article/get', function (req, res) {
+	article.getArticle(req, res);
+});
 
 module.exports = router;
