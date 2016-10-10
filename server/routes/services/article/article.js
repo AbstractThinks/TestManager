@@ -1,19 +1,19 @@
 var fs = require('fs');
-var USERDATA = __dirname+"/database/user.json";
+var ARTICLEDATA = __dirname+"/database/article.json";
+var user = require('../user/user.js');
 var util = require('../util/util.js');
 
 
-var user = {
-	getUser : function (req, res) {
+var article = {
+	getArticle : function (req, res) {
 		var key = req.param('key');
-		fs.readFile(USERDATA, function (err, data) {
+		fs.readFile(ARTICLEDATA, function (err, data) {
 			if (!err) {
 				try {
 					var obj = JSON.parse(data);
 					var newObj = [];
 					for (var  i in obj) {
-						if (obj[i].userid === key) {
-							delete obj[i].password;
+						if (obj[i].articleid === key) {
 							newObj.push(obj[i]);
 						}
 					}
@@ -36,16 +36,39 @@ var user = {
 		});
 
 	},
-	addUser : function (req, res) {
-		var username = req.param('username');
-		var password = util.md5(req.param('password'));   
-		var tel = req.param('tel');
-		var email = req.param('email');
-		var partment = req.param('partment');
-		var tag = req.param('tag');
-		var creater = req.param('creater') || '';
+	getArticles : function (req, res) {
+		var key = req.param('key');
+		fs.readFile(ARTICLEDATA, function (err, data) {
+			if (!err) {
+				try {
+					var obj = JSON.parse(data);
+					var newObj = [];
+					newObj = obj
+					return res.send({
+						status: 1,
+						data: newObj
+					});
+				} catch(e) {
+					return res.send({
+						status: 0,
+						err: e
+					})
+				}
+			} else {
+				return res.send({
+					status: 0,
+					err: err
+				})
+			}
+		});
 
-		if (!username || !password || !tel || !email || !partment || !tag ) {
+	},
+	addArticle : function (req, res) {
+		var articlename = req.param('articlename');  
+		var articleprice = req.param('articleprice');
+		var praise = req.param('praise');  
+		var reverse = req.param('reverse');
+		if (!articlename || !articleprice ) {
 			return res.send({
 				status: 0,
 				data: "缺少必要参数"
@@ -54,20 +77,16 @@ var user = {
 
 		try {
 
-			var content = JSON.parse(fs.readFileSync(USERDATA));
+			var content = JSON.parse(fs.readFileSync(ARTICLEDATA));
 			var obj = {
-				"userid": util.guid(),
-				"username": username,
-				"password": password,
-				"tel": tel,
-				"email": email,
-				"tag": tag,
-				"creater": creater,
-				"time": new Date(),
-				"token": ''
+				"articleid": util.guid(),
+				"articlename": articlename,
+				"articleprice": articleprice,
+				"praise": [],
+				"reverse": []
 			};
 			content.push(obj);
-			fs.writeFileSync(USERDATA, JSON.stringify(content));
+			fs.writeFileSync(ARTICLEDATA, JSON.stringify(content));
 			delete obj.password
 			return res.send({
 				status: 1,
@@ -76,62 +95,53 @@ var user = {
 
 		} catch(e) {
 			return res.send({
-				status: 1,
+				status: 0,
 				err: e
 			});
 		}
 	},
-	login : function (req, res) {
-		var email = req.param('email');
-		var password = util.md5(req.param('password'));
-		var content = JSON.parse(fs.readFileSync(USERDATA))
+	
+	updateArticle : function (req, res) {
+		var key = req.param('key');
+		var articlename = req.param('articlename');  
+		var articleprice = req.param('articleprice');
+		var praise = req.param('praise');  
+		var reverse = req.param('reverse');
+		var content = JSON.parse(fs.readFileSync(ARTICLEDATA));
 		for (var i in content) {
-				
-			if (content[i].email === email && content[i].password === password) {
-				return res.send({
-					status: 1,
-					info: content[i],
-				})
-			}
-				
-		}
-		return res.send({
-			status: 0,
-			info: "用户名或密码不正确",
-		})
-		// var de
-	},
-	loginByToken : function (req, res) {
-
-	},
-	updatePassword : function (req, res) {
-
-	},
-	deleteUser : function (req, res) {
-		var token = req.param('token');
-		var email = req.param('email');
-
-		var content = JSON.parse(fs.readFileSync(USERDATA));
-		for (var i in content) {
-			if (token === content[i].token) {
-				for (var j in content) {
-					if (content[j].email === email) {
-						content.splice(j, i);
-						fs.writeFileSync(USERDATA, JSON.stringify(content));
-						return res.send({
-							status: 1,
-							info: content,
-							data: '删除成功'
-						})
+			if (key === content[i].articleid) {
+				if (praise) {
+					if (!content[i].praise) {
+						content[i].praise = []
+					}
+					content[i].praise.push(praise)
+					if (content[i].praise.length !== 0 && content[i].praise.length % 10 === 0) {
+						var num = (content[i].praise.length / 10) - 1;
+						var money = 50 / (num * 10) 
+						if (num > 0) {
+							for (var i = 0; i < ( num * 10 - 1 ); i++) {
+								user.updateMoney(content[i].praise[i], money)
+							}
+						}
+			
 					}
 				}
+				if (reverse) {
+					if (!content[i].reverse) {
+						user
+						content[i].reverse = []
+					}
+					content[i].reverse.push(reverse)
+				}	
 			}
 		}
+		fs.writeFileSync(ARTICLEDATA, JSON.stringify(content));
 		return res.send({
-			status: 0,
-			err: '删除失败'
-		});
-	}
+			status: 1,
+			data: "成功"
+		})
+	},
+	
 }
 
-module.exports = user;
+module.exports = article;

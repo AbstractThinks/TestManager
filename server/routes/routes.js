@@ -24,5 +24,14 @@ router.post('/user/delete', function (req, res) {
 router.post('/article/get', function (req, res) {
 	article.getArticle(req, res);
 });
+router.post('/article/add', function (req, res) {
+	article.addArticle(req, res);
+});
+router.get('/article/getArticles', function (req, res) {
+	article.getArticles(req, res);
+});
+router.post('/article/updateArticle', function (req, res) {
+	article.updateArticle(req, res);
+});
 
 module.exports = router;

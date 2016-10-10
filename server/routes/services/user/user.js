@@ -64,6 +64,7 @@ var user = {
 				"tag": tag,
 				"creater": creater,
 				"time": new Date(),
+				"money": 0,
 				"token": ''
 			};
 			content.push(obj);
@@ -106,6 +107,23 @@ var user = {
 	},
 	updatePassword : function (req, res) {
 
+	},
+	updateMoney : function (key, money) {
+		
+		var content = JSON.parse(fs.readFileSync(USERDATA));
+		for (var i in content) {
+			if (key === content[i].userid) {
+				if (!content[i].money) {
+					content[i].money = 0;
+				}
+				content[i].money = content[i].money + money
+			}
+		}
+		fs.writeFileSync(USERDATA, JSON.stringify(content));
+		return res.send({
+			status: 1,
+			data: "成功"
+		})
 	},
 	deleteUser : function (req, res) {
 		var token = req.param('token');
