@@ -3,6 +3,8 @@ var router = express.Router();
 var user = require('./services/user/user.js');
 var article = require('./services/article/article.js');
 
+var HuaXiUser = require('./services/HuaXiAppTest/user/user.js');
+
 router.post('/user/get', function (req, res) {
 	user.getUser(req, res);
 });
@@ -33,5 +35,17 @@ router.get('/article/getArticles', function (req, res) {
 router.post('/article/updateArticle', function (req, res) {
 	article.updateArticle(req, res);
 });
+
+
+//HuaXiAppTestServer
+
+router.post('/huxiuser/getuser', function (req, res) {
+	HuaXiUser.getUser(req, res);
+});
+
+router.post('/huxiuser/getuser', function (req, res) {
+	HuaXiUser.getUser(req, res);
+});
+
 
 module.exports = router;
